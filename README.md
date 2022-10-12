@@ -1,1 +1,1 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+An alternative, NextJS-based view of [Scryline](https://github.com/rezendi/scryline) timelines.
