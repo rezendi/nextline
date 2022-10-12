@@ -1,62 +1,40 @@
 import Head from 'next/head'
+import Link from 'next/link';
+const base64 = require('universal-base64');
 
-export default function Home() {
+export default function Home({files, error}) {
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Nextline</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
         <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Welcome to Nextline!
         </h1>
 
         <p className="description">
-          Get started by editing <code>pages/index.js</code>
+          Available scrylines:
+          <br/>{error ? "Fetch error: " + JSON.stringify(error) : ""}
         </p>
 
         <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          {files.map((file) => (
+            <Link href={file.path}>
+            <div className="card">
+              <h3>{file.name.replace(".yaml","")}</h3>
+              {file.path.replace("lines/","")}
+            </div>
+          </Link>
+          ))}
         </div>
       </main>
 
       <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
-        </a>
+          A view of &nbsp;
+          <a href="https://scryline.com/">Scryline</a>
       </footer>
 
       <style jsx>{`
@@ -97,45 +75,15 @@ export default function Home() {
           align-items: center;
         }
 
-        a {
+        Link {
           color: inherit;
           text-decoration: none;
         }
 
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
         .description {
           text-align: center;
-        }
-
-        .description {
           line-height: 1.5;
           font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
         }
 
         .grid {
@@ -178,10 +126,6 @@ export default function Home() {
           line-height: 1.5;
         }
 
-        .logo {
-          height: 1em;
-        }
-
         @media (max-width: 600px) {
           .grid {
             width: 100%;
@@ -206,4 +150,41 @@ export default function Home() {
       `}</style>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  var files = [];
+	try {
+    let owner = process.env.GITHUB_ACCOUNT;
+    let repo = process.env.GITHUB_REPO;
+    let headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": `Basic ${base64.encode(`${owner}:${process.env.GITHUB_TOKEN}`)}`
+    };
+    
+    let api_url = `https://api.github.com/repos/${owner}/${repo}/contents/lines`;
+    var response = await fetch(api_url, { method: 'GET', headers: headers });
+    let dirs = await response.json();
+    for (let i in dirs) {
+      response = await fetch(dirs[i].url, { method: 'GET', headers: headers });
+      let newfiles = await response.json();
+      files = files.concat(newfiles);
+    }
+
+    files = files.filter((f) => f.name.indexOf("test")<0);
+    files = files.reverse();
+    return {
+      props: { success:true, files:files },
+      revalidate: 60,
+    };
+  
+  } catch(error) {
+    console.log("error", error);
+    return {
+      props: { success:false, error:JSON.stringify(error), files:files },
+      revalidate: 30,
+    };
+  }
+
 }
