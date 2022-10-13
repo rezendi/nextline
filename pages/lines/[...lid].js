@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head'
+import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from '@mui/lab';
 const base64 = require('universal-base64');
 const yaml = require('js-yaml');
 
@@ -13,9 +14,20 @@ export default function Line({line, error}) {
         <title>Nextline</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <p>Path: {JSON.stringify(lid)}</p>
-      <p>Error: {JSON.stringify(error)}</p>
-      <p>Line: {JSON.stringify(line)}</p>
+      <h1>{line.title}</h1>
+      <p>entries {line.entries.length}</p>
+      <Timeline>
+        {line.entries.map((entry) =>
+          <TimelineItem>
+            <TimelineOppositeContent><a href="{entry.url}">{entry.when}</a></TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineDot />
+              <TimelineConnector />
+            </TimelineSeparator>
+            <TimelineContent>{entry.summary}<br/>{entry.comments}</TimelineContent>
+          </TimelineItem>
+        )}
+        </Timeline>
     </div>
   );
 }
