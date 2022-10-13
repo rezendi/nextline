@@ -19,7 +19,7 @@ export default function Line({line, error}) {
       <Timeline>
         {line.entries.map((entry) =>
           <TimelineItem>
-            <TimelineOppositeContent><a href="{entry.url}">{entry.when}</a></TimelineOppositeContent>
+            <TimelineOppositeContent><a href={entry.url}>{entry.when}</a><br/>{entry.source}</TimelineOppositeContent>
             <TimelineSeparator>
               <TimelineDot />
               <TimelineConnector />
