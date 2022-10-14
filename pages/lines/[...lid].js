@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head'
+import ReactHtmlParser from 'react-html-parser'; 
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from '@mui/lab';
 const base64 = require('universal-base64');
 const yaml = require('js-yaml');
@@ -14,20 +15,50 @@ export default function Line({line, error}) {
         <title>Nextline</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1>{line.title}</h1>
-      <p>entries {line.entries.length}</p>
-      <Timeline>
-        {line.entries.map((entry) =>
-          <TimelineItem>
-            <TimelineOppositeContent><a href={entry.url}>{entry.when}</a><br/>{entry.source}</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>{entry.summary}<br/>{entry.comments}</TimelineContent>
-          </TimelineItem>
-        )}
+
+      <main>
+        <h1 className="title">{line.title}</h1>
+        <div className="counter">{line.entries.length} entries</div>
+        {false && <p>{JSON.stringify(line.entries[1])}</p>}
+
+        <Timeline>
+          {line.entries.map((entry) =>
+            <TimelineItem>
+              <TimelineOppositeContent>
+                {entry.image &&
+                  <div className="imageContainer"><a href={entry.url}><img className="image" src={entry.image}/></a></div>
+                }
+                <span className="source">{entry.source}</span>
+                &nbsp;
+                <span className="sourceLink"><a href={entry.url}>{new Date(entry.when).toLocaleDateString()}</a></span>
+              </TimelineOppositeContent>
+              <TimelineSeparator>
+                <TimelineDot color='primary' />
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent>
+                <div className="summary">{entry.summary}</div>
+                <div className="comments">{ ReactHtmlParser(entry.comments) }</div>
+              </TimelineContent>
+            </TimelineItem>
+          )}
         </Timeline>
+      </main>
+
+      <footer>
+        A view of &nbsp;
+        <a href="https://scryline.com/">Scryline</a>
+      </footer>
+
+      <style jsx>{`
+      .comments {
+        font-size:small;
+      }
+
+      .image {
+        max-width:160px;
+      }
+      `}</style>
     </div>
   );
 }
