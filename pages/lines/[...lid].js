@@ -23,7 +23,7 @@ export default function Line({line, error}) {
 
         <Timeline>
           {line.entries.map((entry) =>
-            <TimelineItem>
+            <TimelineItem key={entry.url}>
               <TimelineOppositeContent>
                 {entry.image &&
                   <div className="imageContainer"><a href={entry.url}><img className="image" src={entry.image}/></a></div>

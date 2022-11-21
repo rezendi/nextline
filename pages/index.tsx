@@ -22,12 +22,12 @@ export default function Home({files, error}) {
 
         <div className="grid">
           {files.map((file) => (
-            <Link href={file.path}>
-            <div className="card">
-              <h3>{file.name.replace(".yaml","")}</h3>
-              {file.path.replace("lines/","")}
-            </div>
-          </Link>
+            <Link key={file.path} href={file.path}>
+              <div className="card">
+                <h3>{file.name.replace(".yaml","")}</h3>
+                {file.path.replace("lines/","")}
+              </div>
+            </Link>
           ))}
         </div>
       </main>
