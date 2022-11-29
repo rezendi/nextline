@@ -5,7 +5,7 @@ import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnect
 const base64 = require('universal-base64');
 const yaml = require('js-yaml');
 
-export default function Line({line, error}) {
+export default function Line({line, success, error}) {
   const router = useRouter();
   const { lid } = router.query;
 
@@ -16,6 +16,14 @@ export default function Line({line, error}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      { error &&
+        <div>
+          <b>Error fetching line</b>
+          {JSON.stringify(error)}
+        </div>
+      }
+
+      { success &&
       <main>
         <h1 className="title">{line.title}</h1>
         <div className="counter">{line.entries.length} entries</div>
@@ -44,6 +52,7 @@ export default function Line({line, error}) {
           )}
         </Timeline>
       </main>
+      }
 
       <footer>
         A view of &nbsp;
